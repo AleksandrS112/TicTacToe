@@ -9,6 +9,7 @@
  *
  *  Допущения:
  *  - бот выбирает ПОКА рандомную свободную ячейку
+ *  - проверка идет на 3 в ряд независимо от размера поля
  *
  *******************************************************************************/
 
@@ -28,9 +29,9 @@ public class Main {
         while(true) {
             System.out.println("Хотите начать новую игру ? [Y] - да, [N] - нет");
             String userInput = scanner.nextLine();
-            if (userInput.equals("Y")) {
+            if (userInput.equalsIgnoreCase("Y")) {
                 induceStartMenu();
-            } else if (userInput.equals("N")) {
+            } else if (userInput.equalsIgnoreCase("N")) {
                 return;
             } else {
                 System.out.println("Некорректный ввод!");
@@ -52,11 +53,11 @@ public class Main {
         while (true) {
             System.out.println("Введите за кого вы будете играть. [X] - крестики, [O] - нолики.");
             String userInput = scanner.nextLine();
-            if (userInput.equals("X")) {
+            if (userInput.equalsIgnoreCase("X")) {
                 symbolUserSelected = "X";
                 symbolBotSelected = "O";
                 return;
-            } else if (userInput.equals("O")) {
+            } else if (userInput.equalsIgnoreCase("O") || userInput.equals("0")) {
                 symbolUserSelected = "O";
                 symbolBotSelected = "X";
                 return;
@@ -77,9 +78,8 @@ public class Main {
                 System.out.println("Некорректный ввод! Необходимо ввести число от " + MIN_SIZE_BOARD +" до " + MAX_SIZE_BOARD +".");
                 continue;
             }
-            if (sizeBoard< MIN_SIZE_BOARD || sizeBoard> MAX_SIZE_BOARD) {
+            if (sizeBoard < MIN_SIZE_BOARD || sizeBoard > MAX_SIZE_BOARD) {
                 System.out.println("Некорректный ввод! Должно быть число от " + MIN_SIZE_BOARD +" до " + MAX_SIZE_BOARD +".");
-                continue;
             } else {
                 return sizeBoard;
             }
@@ -110,7 +110,6 @@ public class Main {
                 checkStatusGame(board);
             }
             checkStatusGame(board);
-            // НОВАЯ ИГРА ИЛИ В МЕНЮ
         }
     }
 
@@ -183,19 +182,62 @@ public class Main {
     }
 
     private static void checkStatusGame(int[][] board) {
-        boolean isStandoff = true;
+        int isStandoff = 0;
+        // проверка колонок
         for (int row = 0; row < board.length; row++) {
-            for (int col = 0; col <board[row].length ; col++) {
-                if (board[row][col] == 0) {
-                    isStandoff = false;
+            for (int col = 0; col <board[row].length-2 ; col++) {
+                int sum = board[row][col] + board[row][col+1] + board[row][col+2];
+                if (sum == 3) {
+                    isStandoff = 1;
+                    break;
+                } else if (sum == -3) {
+                    isStandoff = -1;
                     break;
                 }
             }
         }
+        //проверка столбцов
+        for (int row = 0; row < board.length-2; row++) {
+            for (int col = 0; col <board[row].length ; col++) {
+                int sum = board[row][col] + board[row+1][col] + board[row+2][col];
+                if (sum == 3) {
+                    isStandoff = 1;
+                    break;
+                } else if (sum == -3) {
+                    isStandoff = -1;
+                    break;
+                }
+            }
+        }
+        //проверка диаганалей
+        //проерка под 45
+        //проверка под -45
+        boolean draw = true;
+        for (int row = 0; row < board.length; row++) {
+            for (int col = 0; col <board[row].length ; col++) {
+                if (board[row][col] == 0) {
+                    draw = false;
+                    break;
+                }
+            }
+        }
+        if (draw == true || isStandoff == 1 || isStandoff == -1) {
 
-        if (isStandoff) {
-            printBoard(board);
-            System.out.print("НИЧЬЯ. ");
+            if (draw == true && (isStandoff != 3 || isStandoff != -3)) {
+                System.out.println("_____________________________________________________________");
+                printBoard(board);
+                System.out.println("НИЧЬЯ. ");
+            }
+            if (isStandoff == 1) {
+                System.out.println("_____________________________________________________________");
+                printBoard(board);
+                System.out.println("ПОБЕДА!");
+            }
+            if (isStandoff == -1) {
+                System.out.println("_____________________________________________________________");
+                printBoard(board);
+                System.out.println("ПОРАЖЕНИЕ");
+            }
             while (true) {
                 System.out.println("Хотите начать новую игру [N], или поменять настройки поля [M]");
                 String userInput = scanner.nextLine();
