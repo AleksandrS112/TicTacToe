@@ -5,11 +5,11 @@
  *  - выбор произвольного размера поля
  *  - возможность ограничивать максимальный размер c помощью статической переменной
  *  - удобный для юзера ввод координат, начинающийся с 1
+ *  - проверка идет на 3, 4 и (5) в ряд в зависимости от размера поля
  *  - можно просто начать новую игру или поменять размер поля и сторону X или O
  *
  *  Допущения:
  *  - бот выбирает ПОКА рандомную свободную ячейку
- *  - проверка идет на 3 в ряд независимо от размера поля
  *
  *******************************************************************************/
 
@@ -24,6 +24,7 @@ public class Main {
     public static int MIN_SIZE_BOARD = 3;
     public static String symbolUserSelected;
     public static String symbolBotSelected;
+    public static int COMBO;
 
     public static void main(String[] args) {
         while(true) {
@@ -44,8 +45,16 @@ public class Main {
         sizeRowBoard = chooseSizeBoard();
         System.out.println("Введите длину игрового поля, от " + MIN_SIZE_BOARD +" до " + MAX_SIZE_BOARD +".");
         sizeColBoard = chooseSizeBoard();
-        System.out.println("Игровое поле будет " + sizeRowBoard + "x" + sizeColBoard + ".");
         pickSymbol();
+        System.out.print("Игровое поле будет " + sizeRowBoard + "x" + sizeColBoard + ". ");
+        if (sizeRowBoard * sizeColBoard > 225) {
+            COMBO = 5;
+        } else if (sizeRowBoard * sizeColBoard > 150) {
+            COMBO = 4;
+        } else {
+            COMBO = 3;
+        }
+        System.out.println("Собери " +COMBO +" [" +symbolUserSelected +"] в ряд.");
         startGame();
     }
 
@@ -53,11 +62,11 @@ public class Main {
         while (true) {
             System.out.println("Введите за кого вы будете играть. [X] - крестики, [O] - нолики.");
             String userInput = scanner.nextLine();
-            if (userInput.equalsIgnoreCase("X")) {
+            if (userInput.equalsIgnoreCase("X") || userInput.equalsIgnoreCase("Х")) {
                 symbolUserSelected = "X";
                 symbolBotSelected = "O";
                 return;
-            } else if (userInput.equalsIgnoreCase("O") || userInput.equals("0")) {
+            } else if (userInput.equalsIgnoreCase("O") || userInput.equals("0") || userInput.equalsIgnoreCase("О")) {
                 symbolUserSelected = "O";
                 symbolBotSelected = "X";
                 return;
@@ -183,35 +192,40 @@ public class Main {
 
     private static void checkStatusGame(int[][] board) {
         int isStandoff = 0;
-        // проверка колонок
-        for (int row = 0; row < board.length; row++) {
-            for (int col = 0; col <board[row].length-2 ; col++) {
-                int sum = board[row][col] + board[row][col+1] + board[row][col+2];
-                if (sum == 3) {
+        for (int row = 0; row < board.length+1-COMBO; row++) {
+            for (int col = 0; col < board[row].length+1-COMBO; col++) {
+                int sumRow1 = 0, sumRow2 = 0, sumRow3 = 0, sumCol1 = 0, sumCol2 = 0, sumCol3 = 0, sumD1 = 0, sumD2 = 0;
+                if (COMBO == 3) {
+                    sumRow1 = board[row][col] + board[row][col + 1] + board[row][col + 2];
+                    sumRow2 = board[row + 1][col] + board[row + 1][col + 1] + board[row + 1][col + 2];
+                    sumRow3 = board[row + 2][col] + board[row + 2][col + 1] + board[row + 2][col + 2];
+                    sumCol1 = board[row][col] + board[row + 1][col] + board[row + 2][col];
+                    sumCol2 = board[row][col + 1] + board[row + 1][col + 1] + board[row + 2][col + 1];
+                    sumCol3 = board[row][col + 2] + board[row + 1][col + 2] + board[row + 2][col + 2];
+                    sumD1 = board[row][col] + board[row + 1][col + 1] + board[row + 2][col + 2];
+                    sumD2 = board[row + 2][col] + board[row + 1][col + 1] + board[row][col + 2];
+                } else if (COMBO == 4) {
+                    sumRow1 = board[row][col] + board[row][col + 1] + board[row][col + 2] + board[row][col+3];
+                    sumRow2 = board[row + 1][col] + board[row + 1][col + 1] + board[row + 1][col + 2] + board[row+1][col+3];
+                    sumRow3 = board[row + 2][col] + board[row + 2][col + 1] + board[row + 2][col + 2] + board[row+2][col+3];
+                    sumCol1 = board[row][col] + board[row + 1][col] + board[row + 2][col] + board[row + 3][col];
+                    sumCol2 = board[row][col + 1] + board[row + 1][col + 1] + board[row + 2][col + 1] + board[row + 3][col + 1];
+                    sumCol3 = board[row][col + 2] + board[row + 1][col + 2] + board[row + 2][col + 2] + board[row + 3][col + 2];
+                    sumD1 = board[row][col] + board[row + 1][col + 1] + board[row + 2][col + 2] + board[row + 3][col + 3];
+                    sumD2 = board[row + 3][col] + board[row + 2][col + 1] + board[row+1][col + 2] + board[row][col+3];
+                }
+
+                if (sumRow1 == COMBO || sumRow2 == COMBO || sumRow3 == COMBO || sumCol1 == COMBO || sumCol2 == COMBO || sumCol3 == COMBO || sumD1 == COMBO || sumD2 == COMBO) {
                     isStandoff = 1;
                     break;
-                } else if (sum == -3) {
+                } else if (sumRow1 == -COMBO || sumRow2 == -COMBO || sumRow3 == -COMBO || sumCol1 == -COMBO || sumCol2 == -COMBO || sumCol3 == -COMBO || sumD1 == -COMBO || sumD2 == -COMBO) {
                     isStandoff = -1;
                     break;
                 }
             }
+            if (isStandoff != 0)
+                break;
         }
-        //проверка столбцов
-        for (int row = 0; row < board.length-2; row++) {
-            for (int col = 0; col <board[row].length ; col++) {
-                int sum = board[row][col] + board[row+1][col] + board[row+2][col];
-                if (sum == 3) {
-                    isStandoff = 1;
-                    break;
-                } else if (sum == -3) {
-                    isStandoff = -1;
-                    break;
-                }
-            }
-        }
-        //проверка диаганалей
-        //проерка под 45
-        //проверка под -45
         boolean draw = true;
         for (int row = 0; row < board.length; row++) {
             for (int col = 0; col <board[row].length ; col++) {
@@ -241,9 +255,9 @@ public class Main {
             while (true) {
                 System.out.println("Хотите начать новую игру [N], или поменять настройки поля [M]");
                 String userInput = scanner.nextLine();
-                if (userInput.equals("N")) {
+                if (userInput.equalsIgnoreCase("N")) {
                     startGame();
-                } else if (userInput.equals("M")) {
+                } else if (userInput.equalsIgnoreCase("M") || userInput.equalsIgnoreCase("М")) {
                     induceStartMenu();
                 } else {
                     System.out.println("Некорректный ввод! ");
