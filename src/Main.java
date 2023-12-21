@@ -5,7 +5,7 @@
  *  - выбор произвольного размера поля
  *  - возможность ограничивать максимальный размер c помощью статической переменной
  *  - удобный для юзера ввод координат, начинающийся с 1
- *  - проверка идет на 3, 4 и (5) в ряд в зависимости от размера поля
+ *  - проверка идет на 3, 4 и 5 в ряд в зависимости от размера поля
  *  - можно просто начать новую игру или поменять размер поля и сторону X или O
  *
  *  Допущения:
@@ -213,6 +213,15 @@ public class Main {
                     sumCol3 = board[row][col + 2] + board[row + 1][col + 2] + board[row + 2][col + 2] + board[row + 3][col + 2];
                     sumD1 = board[row][col] + board[row + 1][col + 1] + board[row + 2][col + 2] + board[row + 3][col + 3];
                     sumD2 = board[row + 3][col] + board[row + 2][col + 1] + board[row+1][col + 2] + board[row][col+3];
+                } else if (COMBO = 5) {
+                    sumRow1 = board[row][col] + board[row][col + 1] + board[row][col + 2] + board[row][col+3] + board[row][col+4];
+                    sumRow2 = board[row + 1][col] + board[row + 1][col + 1] + board[row + 1][col + 2] + board[row+1][col+3] + board[row+1][col+4];
+                    sumRow3 = board[row + 2][col] + board[row + 2][col + 1] + board[row + 2][col + 2] + board[row+2][col+3] + board[row+2][col+5];
+                    sumCol1 = board[row][col] + board[row + 1][col] + board[row + 2][col] + board[row + 3][col] + board[row + 4][col];
+                    sumCol2 = board[row][col + 1] + board[row + 1][col + 1] + board[row + 2][col + 1] + board[row + 3][col + 1] + board[row + 4][col + 1];
+                    sumCol3 = board[row][col + 2] + board[row + 1][col + 2] + board[row + 2][col + 2] + board[row + 3][col + 2] + board[row + 4][col + 2];
+                    sumD1 = board[row][col] + board[row + 1][col + 1] + board[row + 2][col + 2] + board[row + 3][col + 3] + board[row + 4][col + 4];
+                    sumD2 = board[row + 4][col] + board[row + 3][col + 1] + board[row+2][col + 2] + board[row+1][col+3] + board[row][col+4];
                 }
 
                 if (sumRow1 == COMBO || sumRow2 == COMBO || sumRow3 == COMBO || sumCol1 == COMBO || sumCol2 == COMBO || sumCol3 == COMBO || sumD1 == COMBO || sumD2 == COMBO) {
